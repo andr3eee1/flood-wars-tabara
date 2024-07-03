@@ -88,6 +88,7 @@ void makeMove(int color, int juc) {
       c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
       scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
 
+      printf("%d %d\n",l,c);
       if(mat[l][c] == color) {
         ramase--; // am mai procesat o culoare
 
@@ -126,6 +127,7 @@ void makeMove(int color, int juc) {
       c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
       scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
 
+      printf("%d %d\n",l,c);
       if(mat[l][c] == color) {
         ramase--; // am mai procesat o culoare
 
@@ -158,6 +160,7 @@ void makeMove(int color, int juc) {
       }
     }
   }
+  printf("\n");
 }
 
 // evaluarea statica a tablei
