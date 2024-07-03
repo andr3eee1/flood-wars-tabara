@@ -51,95 +51,28 @@ static inline int abs_(int x){
   return (x<0?-x:x);
 }
 
-int fill(int table[MAXN+2][MAXM+2],int l,int c,int tf,int f){
-  int rez=1;
-
-  table[l][c]=f;
-
-  if(table[l-1][c]==tf){
-    rez+=fill(table,l-1,c,tf,f);
-  }
-  if(table[l][c+1]==tf){
-    rez+=fill(table,l,c+1,tf,f);
-  }
-  if(table[l+1][c]==tf){
-    rez+=fill(table,l+1,c,tf,f);
-  }
-  if(table[l][c-1]==tf){
-    rez+=fill(table,l,c-1,tf,f);
-  }
-
-  return rez;
+// TODO: de implementat evaluarea statica a tablei
+int evalStatic() {
+  
 }
 
-int distFill(int table[MAXN+2][MAXM+2],int l,int c,int lf,int cf,int tf,int f){
-  int rez=abs_(l-lf)+abs_(c-cf);
-
-  table[l][c]=f;
-
-  if(table[l-1][c]==tf){
-    rez=min(rez,distFill(table,l-1,c,lf,cf,tf,f));
-  }
-  if(table[l][c+1]==tf){
-    rez=min(rez,distFill(table,l,c+1,lf,cf,tf,f));
-  }
-  if(table[l+1][c]==tf){
-    rez=min(rez,distFill(table,l+1,c,lf,cf,tf,f));
-  }
-  if(table[l][c-1]==tf){
-    rez=min(rez,distFill(table,l,c-1,lf,cf,tf,f));
-  }
-
-  return rez;
-}
-
-int getPos(int table[MAXN+2][MAXM+2]){
-  int score=0;
-
-  score+=getDist(table)*14;
-
-  score+=getFrontIncad(table);
-
-  return score;
-}
-
-#define POS ((MAXM+MAXN+1)*14+(MAXN*MAXM))
-
-int evalStatic(int table[MAXN+2][MAXM+2]){
-  int score=0;
-
-  //evaluare dupa punctaj
-  score+=getScore(table)*POS;
-
-  score+=getPos(table);
-
-  return score;
-}
-
-int negamax(int depth,int table[MAXN+2][MAXM+2],int alpha,int beta,int jucl,int jucc){
+int negamax(int depth,int alpha,int beta){
   int icolor,score,l,c;
-  int ctable[MAXN+2][MAXM+2];
 
   if(maxdepth-depth==5){
     cont=((checktime()-tbase)<MAXTIME);
   }
 
   if(cont&&depth==maxdepth){
-    return (((depth+(1-(juc=='J'?0:1)))&1)*2-1)*evalStatic(table);
+    return (((depth+(1-juc)))&1)*2-1)*evalStatic();
   }
 
   if(cont&&killer[depth]>=0){
     icolor=killer[depth];
     if(mut[icolor]!=int2char[table[n][1]]&&mut[icolor]!=int2char[table[1][m]]){
-      for(l=0;l<=n+1;l++){
-        for(c=0;c<=m+1;c++){
-          ctable[l][c]=table[l][c];
-        }
-      }
       //TODO: trebuie implementata mutarea rapida, care calculeaza toata evaluarea statica
-      fill(ctable,jucl,jucc,ctable[jucl][jucc],char2int[mut[icolor]]);
 
-      score=-negamax(depth+1,ctable,-beta,-alpha,(jucl==1?n:1),(jucc==1?m:1));
+      score=-negamax(depth+1,-beta,-alpha);
 
       if(score>alpha){
         alpha=score;
@@ -150,15 +83,9 @@ int negamax(int depth,int table[MAXN+2][MAXM+2],int alpha,int beta,int jucl,int 
   icolor=0;
   while(cont&&alpha<beta&&icolor<5){
     if(icolor!=killer[depth]&&mut[icolor]!=int2char[table[n][1]]&&mut[icolor]!=int2char[table[1][m]]){
-      for(l=0;l<=n+1;l++){
-        for(c=0;c<=m+1;c++){
-          ctable[l][c]=table[l][c];
-        }
-      }
       //TODO: trebuie implementata mutarea rapida, care calculeaza toata evaluarea statica
-      fill(ctable,jucl,jucc,ctable[jucl][jucc],char2int[mut[icolor]]);
 
-      score=-negamax(depth+1,ctable,-beta,-alpha,(jucl==1?n:1),(jucc==1?m:1));
+      score=-negamax(depth+1,-beta,-alpha);
 
       if(score>alpha){
         alpha=score;
@@ -180,7 +107,7 @@ int main(){
     int2char[l]=mut[l];
   }
 
-  juc=fgetc(stdin);
+  juc = (fgetc(stdin) == 'J' ? 0 : 1);
   fgetc(stdin);//'\n'
 
   n=1;
@@ -213,10 +140,10 @@ int main(){
     cjuc=m;
   }
 
+  // resetare killermove
   for(l=0;l<MAXDEPTH;l++){
     killer[l]=-1;
   }
-  tbase=checktime();
 
   maxicolor=100;//ceva fictional, pentru debug
   cont=maxdepth=1;
@@ -227,14 +154,11 @@ int main(){
       maxicolor=killer[0];
     }
   }
-  // printf("%d %d\n",maxicolor,maxdepth);
-  fill(mat,ljuc,cjuc,char2int[chjuc],char2int[mut[maxicolor]]);
+  
+  // TODO: mutarea finala
 
-  if(juc=='J'){
-    fputc('S',stdout);
-  }else{
-    fputc('J',stdout);
-  }
+  // afisare tabla
+  fputc(juc == 0 ? 'S' ? 'J', stdout);
   fputc('\n',stdout);
   for(l=1;l<=n;l++){
     for(c=1;c<=m;c++){
