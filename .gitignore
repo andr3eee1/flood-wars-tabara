@@ -1,0 +1,29 @@
+# Ignore binary files 
+*.exe 
+*.dll 
+*.so 
+*.dylib 
+*.jar 
+*.war 
+*.ear 
+*.zip 
+*.tar 
+*.gz 
+*.bz2 
+*.xz 
+*.7z 
+*.rar 
+*.png 
+*.jpg 
+*.jpeg 
+*.gif 
+*.bmp 
+*.ico 
+*.webp 
+*.pdf 
+*.doc 
+*.docx 
+*.xls 
+    *.xlsx 
+    *.ppt 
+    *.pptx 
