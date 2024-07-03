@@ -1,7 +1,6 @@
 /*
-   Nume program   : alpha-q.c
-   Nume concurent : Pana Andrei, Paunescu Vlad
-   E-mail         : panaandreimihai@gmail.com, svsvpaunescu@gmail.com
+   Nume program   : infinity-matrix.c
+   Nume concurent : Pana Andrei, Danciu Traian, Teodorescu Cosmin, Hanganu Darius
 */
 
 #include <stdio.h>
