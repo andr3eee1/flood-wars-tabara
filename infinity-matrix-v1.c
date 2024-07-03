@@ -11,7 +11,7 @@
 #define MAXN 50
 #define MAXM 50
 #define INFINIT 2147483647
-#define MAXDEPTH 30
+#define MAXDEPTH 100
 #define MAXTIME 980000 // 0.98 sec
 #define NCOADA 256
 #define NDIR 4
@@ -61,71 +61,100 @@ static inline int abs_(int x){
 struct Coada {
   int prim, ultim;
   char coadal[NCOADA], coadac[NCOADA];
-} frontiera[2];
-int dist[2], arie[2], frontl[2], frontc[2];
+};
+
+struct Scor {
+  int arie, dist, frontl, frontc;
+  struct Coada frontiera;
+} scor[2];
 
 int dlin[NDIR] = {-1, 0, 1, 0}, dcol[NDIR] = {0, 1, 0, -1};
 
 // facem mutare in color pentru jucatorul juc
 void makeMove(int color, int juc) {
-  int oldultim, dir, lnou, cnou, l, c;
+  int ramase, i, l, c, dir, lnou, cnou;
 
-  // copy paste, urat dar ajuta pentru a evita un test
-  oldultim = frontiera[juc].ultim;
-  if(juc == 0) { // jucatorul de jos
-    while(frontiera[juc].prim != oldultim) {
+  ramase = 0; // numaram numarul de celule noi neprocesate
+  for(i = scor[juc].frontiera.prim; i != scor[juc].frontiera.ultim; i = (i + 1) % NCOADA) {
+    if(mat[scor[juc].frontiera.coadal[i]][scor[juc].frontiera.coadac[i]] == color) {
+      ramase++;
+    }
+  }
+
+  if(juc == 0) {
+    while(ramase > 0) { // cat timp mai avem celule noi neprocesate
       // luam prima pozitie din coada
-      l = frontiera[juc].coadal[frontiera[juc].prim];
-      c = frontiera[juc].coadac[frontiera[juc].prim];
-      frontiera[juc].prim = (frontiera[juc].prim + 1) % NCOADA;
-    
-      for(dir = 0; dir < NDIR; dir++) {
-        // coordonatele noi
-        lnou = l + dlin[dir];
-        cnou = c + dcol[dir];
-        
-        if(viz[lnou][cnou] == 0 && mat[lnou][cnou] == color) { // daca nu e luata si e culoarea buna
-          viz[lnou][cnou] = 1;
+      l = scor[juc].frontiera.coadal[scor[juc].frontiera.prim];
+      c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
+      scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
 
-          // adaugam noua pozitie in coada
-          frontiera[juc].coadal[frontiera[juc].ultim] = lnou;
-          frontiera[juc].coadac[frontiera[juc].ultim] = cnou;
-          frontiera[juc].ultim = (frontiera[juc].ultim + 1) % NCOADA;
+      if(mat[l][c] == color) {
+        ramase--; // am mai procesat o culoare
 
-          // actualizam scorurile
-          arie[juc]++;
-          dist[juc] = min(dist[juc], lnou - 1 + m - cnou);
-          frontl[juc] = min(frontl[juc], lnou);
-          frontc[juc] = max(frontc[juc], cnou);
+        // actualizam scorurile
+        scor[0].arie++;
+        scor[0].dist = min(scor[0].dist, l - 1 + m - c);
+        scor[0].frontl = max(scor[0].frontl, n + 1 - l);
+        scor[0].frontc = max(scor[0].frontc, c);
+
+        for(dir = 0; dir < NDIR; dir++) {
+          lnou = l + dlin[dir];
+          cnou = c + dcol[dir];
+          if(viz[lnou][cnou] == 0) {
+            viz[lnou][cnou] = 1;
+
+            // adaugam noua pozitie in coada
+            scor[juc].frontiera.coadal[scor[juc].frontiera.ultim] = lnou;
+            scor[juc].frontiera.coadac[scor[juc].frontiera.ultim] = cnou;
+            scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
+
+            if(mat[lnou][cnou] == color) {
+              ramase++; // avem o noua pozitie de procesat
+            }
+          }
         }
+      } else { // nu este buna asa ca o adaugam inapoi in coada
+        scor[juc].frontiera.coadal[scor[juc].frontiera.ultim] = l;
+        scor[juc].frontiera.coadac[scor[juc].frontiera.ultim] = c;
+        scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
       }
     }
-  } else { // jucatorul de sus
-    while(frontiera[juc].prim != oldultim) {
+  } else {
+    while(ramase > 0) { // cat timp mai avem celule noi neprocesate
       // luam prima pozitie din coada
-      l = frontiera[juc].coadal[frontiera[juc].prim];
-      c = frontiera[juc].coadac[frontiera[juc].prim];
-      frontiera[juc].prim = (frontiera[juc].prim + 1) % NCOADA;
+      l = scor[juc].frontiera.coadal[scor[juc].frontiera.prim];
+      c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
+      scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
 
-      for(dir = 0; dir < NDIR; dir++) {
-        // coordonatele noi
-        lnou = l + dlin[dir];
-        cnou = c + dcol[dir];
-        
-        if(viz[lnou][cnou] == 0 && mat[lnou][cnou] == color) { // daaca nu e luata si e culoarea buna        
-          viz[lnou][cnou] = 1;
+      if(mat[l][c] == color) {
+        ramase--; // am mai procesat o culoare
 
-          // adaugam noua pozitie in coada
-          frontiera[juc].coadal[frontiera[juc].ultim] = lnou;
-          frontiera[juc].coadac[frontiera[juc].ultim] = cnou;
-          frontiera[juc].ultim = (frontiera[juc].ultim + 1) % NCOADA;
+        // actualizam scorurile
+        scor[1].arie++;
+        scor[1].dist = min(scor[1].dist, n - l + c - 1);
+        scor[0].frontl = max(scor[0].frontl, l);
+        scor[0].frontc = max(scor[0].frontc, m + 1 - c);
 
-          // actualizam scorurile
-          arie[juc]++;
-          dist[juc] = min(dist[juc], n - lnou + cnou - 1);
-          frontl[juc] = max(frontl[juc], lnou);
-          frontc[juc] = min(frontc[juc], cnou);
+        for(dir = 0; dir < NDIR; dir++) {
+          lnou = l + dlin[dir];
+          cnou = c + dcol[dir];
+          if(viz[lnou][cnou] == 0) {
+            viz[lnou][cnou] = 1;
+
+            // adaugam noua pozitie in coada
+            scor[juc].frontiera.coadal[scor[juc].frontiera.ultim] = lnou;
+            scor[juc].frontiera.coadac[scor[juc].frontiera.ultim] = cnou;
+            scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
+
+            if(mat[lnou][cnou] == color) {
+              ramase++; // avem o noua pozitie de procesat
+            }
+          }
         }
+      } else { // nu este buna asa ca o adaugam inapoi in coada
+        scor[juc].frontiera.coadal[scor[juc].frontiera.ultim] = l;
+        scor[juc].frontiera.coadac[scor[juc].frontiera.ultim] = c;
+        scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
       }
     }
   }
@@ -133,14 +162,15 @@ void makeMove(int color, int juc) {
 
 // evaluarea statica a tablei
 int evalStatic(int depth) {
-  return PONDER_MATERIAL * (arie[0] - arie[1]) + // scorul material
-         PONDER_DISTANTA * (dist[0] - dist[1]) + // distanta pana la adversar
-         PONDER_FRONTIERA * ((n - frontl[0] + 1) * frontc[0] -
-                             frontl[1] * (m - frontc[1] + 1)); // si frontiera de incadrare
+  return PONDER_MATERIAL * (scor[0].arie - scor[1].arie) + // scorul material
+         PONDER_DISTANTA * (scor[0].dist - scor[1].dist) + // distanta pana la adversar
+         PONDER_FRONTIERA * ((n - scor[0].frontl + 1) * scor[0].frontc -
+                             scor[1].frontl * (m - scor[1].frontc + 1)); // si frontiera de incadrare
 }
 
 int negamax(int depth,int alpha,int beta){
-  int icolor,score;
+  int icolor,score, startKiller;
+  struct Scor oldscor;
 
   if(maxdepth-depth==5){
     cont=((checktime()-tbase)<MAXTIME);
@@ -150,6 +180,9 @@ int negamax(int depth,int alpha,int beta){
     return (1 - 2 * ((depth % 2) ^ juc)) * evalStatic(depth);
   }
 
+  oldscor = scor[juc];
+
+  startKiller = killer[depth];
   if(cont&&killer[depth]>=0){
     icolor=killer[depth];
     if(icolor!=mat[n][1]&&icolor!=mat[1][m]){
@@ -160,12 +193,14 @@ int negamax(int depth,int alpha,int beta){
       if(score>alpha){
         alpha=score;
       }
+
+      scor[juc] = oldscor;
     }
   }
 
   icolor=0;
   while(cont&&alpha<beta&&icolor<5){
-    if(icolor!=killer[depth]&&icolor!=mat[n][1]&&icolor!=mat[1][m]){
+    if(icolor!=startKiller&&icolor!=mat[n][1]&&icolor!=mat[1][m]){
       makeMove(icolor, juc ^ (depth % 2)); // juc pentru par si juc^1 pentru impar
 
       score=-negamax(depth+1,-beta,-alpha);
@@ -174,6 +209,8 @@ int negamax(int depth,int alpha,int beta){
         alpha=score;
         killer[depth]=icolor;
       }
+
+      scor[juc] = oldscor;
     }
     icolor++;
   }
@@ -199,16 +236,6 @@ int main(){
 
   tbase = checktime();
 
-  // initializari frontiera si scoruri
-  frontiera[0].prim = frontiera[1].prim = 0;
-  frontiera[0].ultim = frontiera[1].ultim = 1;
-  frontiera[0].coadal[0] = frontl[0] = n;
-  frontiera[0].coadac[0] = frontc[0] = 1;
-  frontiera[1].coadal[1] = frontl[1] = 1;
-  frontiera[1].coadac[1] = frontc[1] = m;
-  dist[0] = dist[1] = n + m - 2;
-  arie[0] = arie[1] = 1;
-
   for(l=0;l<5;l++){
     char2int[mut[l]]=l;
     int2char[l]=mut[l];
@@ -217,6 +244,7 @@ int main(){
   juc = (fgetc(stdin) == 'J' ? 0 : 1);
   fgetc(stdin);//'\n'
 
+  // citire matrice
   n=1;
   ch=fgetc(stdin);
   while(!feof(stdin)){
@@ -231,12 +259,28 @@ int main(){
   n--;
   m--;
 
+  // bordare matrice
   for(l=0;l<=n+1;l++){
     mat[l][0]=mat[l][m+1]=-1;
+    viz[l][0] = viz[l][m + 1] = 1;
   }
   for(c=0;c<=m+1;c++){
     mat[0][c]=mat[n+1][c]=-1;
+    viz[0][c] = viz[n + 1][c] = 1;
   }
+
+  // initializari frontiera si scoruri
+  scor[0].dist = scor[1].dist = n + m - 2;
+  scor[0].frontl = scor[0].frontc = scor[1].frontl = scor[1].frontc = 1;
+  scor[0].frontiera.prim = scor[1].frontiera.prim = 0;
+  scor[0].frontiera.ultim = scor[1].frontiera.ultim = 1;
+  scor[0].frontiera.coadal[0] = n;
+  scor[0].frontiera.coadac[0] = 1;
+  scor[1].frontiera.coadal[0] = 1;
+  scor[1].frontiera.coadac[0] = m;
+  makeMove(mat[n][1], 0);
+  makeMove(mat[1][m], 1);
+  viz[n][1] = viz[1][m] = 1;
 
   // resetare killermove
   for(l=0;l<MAXDEPTH;l++){
@@ -253,7 +297,7 @@ int main(){
     }
   }
 
-  printf("%d\n", maxicolor);
+  printf("%d\n", maxdepth);
 
   // mutarea finala
   if(juc == 0) {
