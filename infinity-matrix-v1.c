@@ -199,6 +199,10 @@ int negamax(int depth,int alpha,int beta){
         alpha=score;
       }
 
+      // avand in vedere ca lenea ma domina, nu mai creez o variabila noua
+      for(icolor = scor[juc].frontiera.prim; icolor != scor[juc].frontiera.ultim; icolor = (icolor + 1) % NCOADA) {
+        viz[scor[juc].frontiera.coadal[i]][scor[juc].frontiera.coadac[i]] = 0;
+      }
       scor[juc] = oldscor;
     }
   }
@@ -215,6 +219,10 @@ int negamax(int depth,int alpha,int beta){
         killer[depth]=icolor;
       }
 
+      // avand in vedere ca lenea ma domina, nu mai creez o variabila noua
+      for(icolor = scor[juc].frontiera.prim; icolor != scor[juc].frontiera.ultim; icolor = (icolor + 1) % NCOADA) {
+        viz[scor[juc].frontiera.coadal[i]][scor[juc].frontiera.coadac[i]] = 0;
+      }
       scor[juc] = oldscor;
     }
     icolor++;
