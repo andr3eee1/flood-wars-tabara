@@ -133,10 +133,10 @@ void makeMove(int color, int juc) {
 
 // evaluarea statica a tablei
 int evalStatic(int depth) {
-  return (1 - depth % 2 * 2) * (PONDER_MATERIAL * (arie[0] - arie[1]) + // scorul material
-                                PONDER_DISTANTA * (dist[0] - dist[1]) + // distanta pana la adversar
-                                PONDER_FRONTIERA * ((n - frontl[0] + 1) * frontc[0] -
-                                                    frontl[1] * (m - frontc[0] + 1))); // si frontiera de incadrare
+  return PONDER_MATERIAL * (arie[0] - arie[1]) + // scorul material
+         PONDER_DISTANTA * (dist[0] - dist[1]) + // distanta pana la adversar
+         PONDER_FRONTIERA * ((n - frontl[0] + 1) * frontc[0] -
+                             frontl[1] * (m - frontc[1] + 1)); // si frontiera de incadrare
 }
 
 int negamax(int depth,int alpha,int beta){
@@ -147,7 +147,7 @@ int negamax(int depth,int alpha,int beta){
   }
 
   if(cont&&depth==maxdepth){
-    return ((depth+1-juc)%2*2-1)*evalStatic(depth);
+    return (1 - 2 * ((depth % 2) ^ juc)) * evalStatic(depth);
   }
 
   if(cont&&killer[depth]>=0){
@@ -196,6 +196,8 @@ void fillMutare(int l, int c, int vechi, int nou) {
 int main(){
   int l,c,maxicolor;
   char ch;
+
+  tbase = checktime();
 
   // initializari frontiera si scoruri
   frontiera[0].prim = frontiera[1].prim = 0;
@@ -250,6 +252,8 @@ int main(){
       maxicolor=killer[0];
     }
   }
+
+  printf("%d\n", maxicolor);
 
   // mutarea finala
   if(juc == 0) {
