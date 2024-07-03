@@ -24,6 +24,6 @@
 *.doc 
 *.docx 
 *.xls 
-    *.xlsx 
-    *.ppt 
-    *.pptx 
+*.xlsx 
+*.ppt 
+*.pptx 
