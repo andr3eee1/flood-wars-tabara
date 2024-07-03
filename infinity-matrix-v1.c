@@ -88,7 +88,7 @@ void makeMove(int color, int juc) {
       c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
       scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
 
-      //printf("%d %d: %c\n",l,c,mut[color]);
+      //printf("%d %d: %c %c %d\n",l,c,mut[color], mut[(int)mat[l][c]], ramase);
       //printf("%d %d\n",scor[juc].frontiera.prim,scor[juc].frontiera.ultim);
       if(mat[l][c] == color) {
         ramase--; // am mai procesat o culoare
@@ -112,6 +112,7 @@ void makeMove(int color, int juc) {
 
             if(mat[lnou][cnou] == color) {
               ramase++; // avem o noua pozitie de procesat
+        //      printf("lol\n");
             }
           }
         }
@@ -128,8 +129,8 @@ void makeMove(int color, int juc) {
       c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
       scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
 
-      //printf("%d %d: %c\n",l,c,mut[color]);
-      //printf("%d %d\n",scor[juc].frontiera.prim,scor[juc].frontiera.ultim);
+  //    printf("%d %d: %c %c %d\n",l,c,mut[color], mut[(int)mat[l][c]], ramase);
+    //  printf("%d %d\n",scor[juc].frontiera.prim,scor[juc].frontiera.ultim);
       if(mat[l][c] == color) {
         ramase--; // am mai procesat o culoare
 
@@ -152,6 +153,7 @@ void makeMove(int color, int juc) {
 
             if(mat[lnou][cnou] == color) {
               ramase++; // avem o noua pozitie de procesat
+      //        printf("lol\n");
             }
           }
         }
@@ -174,7 +176,7 @@ int evalStatic(int depth) {
 }
 
 int negamax(int depth,int alpha,int beta){
-  int icolor,score, startKiller;
+  int icolor,score, startKiller, i;
   struct Scor oldscor;
 
   if(maxdepth-depth==5){
@@ -199,9 +201,8 @@ int negamax(int depth,int alpha,int beta){
         alpha=score;
       }
 
-      // avand in vedere ca lenea ma domina, nu mai creez o variabila noua
-      for(icolor = scor[(int)juc].frontiera.prim; icolor != scor[(int)juc].frontiera.ultim; icolor = (icolor + 1) % NCOADA) {
-        viz[(int)scor[(int)juc].frontiera.coadal[icolor]][(int)scor[(int)juc].frontiera.coadac[icolor]] = 0;
+      for(i = scor[(int)juc].frontiera.prim; i != scor[(int)juc].frontiera.ultim; i = (i + 1) % NCOADA) {
+        viz[(int)scor[(int)juc].frontiera.coadal[i]][(int)scor[(int)juc].frontiera.coadac[i]] = 0;
       }
       scor[(int)juc] = oldscor;
     }
@@ -220,8 +221,8 @@ int negamax(int depth,int alpha,int beta){
       }
 
       // avand in vedere ca lenea ma domina, nu mai creez o variabila noua
-      for(icolor = scor[(int)juc].frontiera.prim; icolor != scor[(int)juc].frontiera.ultim; icolor = (icolor + 1) % NCOADA) {
-        viz[(int)scor[(int)juc].frontiera.coadal[icolor]][(int)scor[(int)juc].frontiera.coadac[icolor]] = 0;
+      for(i = scor[(int)juc].frontiera.prim; i != scor[(int)juc].frontiera.ultim; i = (i + 1) % NCOADA) {
+        viz[(int)scor[(int)juc].frontiera.coadal[i]][(int)scor[(int)juc].frontiera.coadac[i]] = 0;
       }
       scor[(int)juc] = oldscor;
     }
