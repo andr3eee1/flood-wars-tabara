@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
-#include "hash.h"
+//#include "hash.h"
 
 #define MAXN 50
 #define MAXM 50
@@ -297,7 +297,7 @@ int main(){
     }
   }
 
-  printf("%d\n", maxdepth);
+  // printf("%d\n", maxdepth);
 
   // mutarea finala
   if(juc == 0) {
