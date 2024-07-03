@@ -72,32 +72,6 @@ int fill(int table[MAXN+2][MAXM+2],int l,int c,int tf,int f){
   return rez;
 }
 
-int inglobFill(int table[MAXN+2][MAXM+2],int l,int c,int f){
-  int rez=1;
-  table[l][c]=f;
-
-  if(table[l-1][c]==-2||table[l][c+1]==-2||table[l+1][c]==-2||table[l][c-1]==-2){
-    atj=1;
-  }else if(table[l-1][c]==-3||table[l][c+1]==-3||table[l+1][c]==-3||table[l][c-1]==-3){
-    ats=1;
-  }
-
-  if(table[l-1][c]!=-1&&table[l-1][c]!=-2&&table[l-1][c]!=-3&&table[l-1][c]!=f){
-    rez+=inglobFill(table,l-1,c,f);
-  }
-  if(table[l][c+1]!=-1&&table[l][c+1]!=-2&&table[l][c+1]!=-3&&table[l][c+1]!=f){
-    rez+=inglobFill(table,l,c+1,f);
-  }
-  if(table[l+1][c]!=-1&&table[l+1][c]!=-2&&table[l+1][c]!=-3&&table[l+1][c]!=f){
-    rez+=inglobFill(table,l+1,c,f);
-  }
-  if(table[l][c-1]!=-1&&table[l][c-1]!=-2&&table[l][c-1]!=-3&&table[l][c-1]!=f){
-    rez+=inglobFill(table,l,c-1,f);
-  }
-
-  return rez;
-}
-
 int distFill(int table[MAXN+2][MAXM+2],int l,int c,int lf,int cf,int tf,int f){
   int rez=abs_(l-lf)+abs_(c-cf);
 
@@ -119,147 +93,12 @@ int distFill(int table[MAXN+2][MAXM+2],int l,int c,int lf,int cf,int tf,int f){
   return rez;
 }
 
-int frontFill(int table[MAXN+2][MAXM+2],int l,int c,int juc,int tf,int f){
-  int rezl=l,rezc=c,auxl,auxc;
-
-  table[l][c]=f;
-
-  if(table[l-1][c]==tf){
-    auxl=frontFill(table,l-1,c,juc,tf,f);
-    auxc=auxl%(MAXM+1);
-    auxl/=(MAXM+1);
-    if(juc==0){ //J
-      rezl=min(rezl,auxl);
-      rezc=max(rezc,auxc);
-    }else{ //S
-      rezl=max(rezl,auxl);
-      rezc=min(rezc,auxc);
-    }
-  }
-  if(table[l][c+1]==tf){
-    auxl=frontFill(table,l,c+1,juc,tf,f);
-    auxc=auxl%(MAXM+1);
-    auxl/=(MAXM+1);
-    if(juc==0){ //J
-      rezl=min(rezl,auxl);
-      rezc=max(rezc,auxc);
-    }else{ //S
-      rezl=max(rezl,auxl);
-      rezc=min(rezc,auxc);
-    }
-  }
-  if(table[l+1][c]==tf){
-    auxl=frontFill(table,l+1,c,juc,tf,f);
-    auxc=auxl%(MAXM+1);
-    auxl/=(MAXM+1);
-    if(juc==0){ //J
-      rezl=min(rezl,auxl);
-      rezc=max(rezc,auxc);
-    }else{ //S
-      rezl=max(rezl,auxl);
-      rezc=min(rezc,auxc);
-    }
-  }
-  if(table[l][c-1]==tf){
-    auxl=frontFill(table,l,c-1,juc,tf,f);
-    auxc=auxl%(MAXM+1);
-    auxl/=(MAXM+1);
-    if(juc==0){ //J
-      rezl=min(rezl,auxl);
-      rezc=max(rezc,auxc);
-    }else{ //S
-      rezl=max(rezl,auxl);
-      rezc=min(rezc,auxc);
-    }
-  }
-
-  return rezl*(MAXM+1)+rezc;
-}
-
-int getScore(int table[MAXN+2][MAXM+2]){
-  int ctable[MAXN+2][MAXM+2];
-  int l,c,pctj,pcts,pct;
-
-  //copiez tabla in ctable
-  for(l=0;l<=n+1;l++){
-    for(c=0;c<=m+1;c++){
-      ctable[l][c]=table[l][c];
-    }
-  }
-
-  pctj=fill(ctable,n,1,ctable[n][1],-2);
-  pcts=fill(ctable,1,m,ctable[1][m],-3);
-  // printf("Score init: %d %d\n",pctj,pcts);
-
-  if(n*m<750){
-    for(l=1;l<=n;l++){
-      for(c=1;c<=m;c++){
-        if(ctable[l][c]!=-2&&ctable[l][c]!=-3&&ctable[l][c]!=-4){
-          atj=ats=0;
-          pct=inglobFill(ctable,l,c,-4);
-
-          if(atj==1&&ats==0){
-            pctj+=pct;
-          }else if(atj==0&&ats==1){
-            pcts+=pct;
-          }
-        }
-      }
-    }
-  }
-
-  // printf("Score: %d %d\n",pctj,pcts);
-
-  return pctj-pcts;
-}
-
-int getDist(int table[MAXN+2][MAXM+2]){
-  int ctable[MAXN+2][MAXM+2];
-  int l,c,distj,dists;
-
-  for(l=0;l<=n+1;l++){
-    for(c=0;c<=m+1;c++){
-      ctable[l][c]=table[l][c];
-    }
-  }
-
-  distj=distFill(ctable,n,1,1,m,ctable[n][1],-1);
-  dists=distFill(ctable,1,m,n,1,ctable[1][m],-1);
-
-  return dists-distj;
-}
-
-int getFrontIncad(int table[MAXN+2][MAXM+2]){
-  int ctable[MAXN+2][MAXM+2];
-  int l,c,frontj,fronts;
-
-  for(l=0;l<=n+1;l++){
-    for(c=0;c<=m+1;c++){
-      ctable[l][c]=table[l][c];
-    }
-  }
-
-  l=frontFill(ctable,n,1,0,ctable[n][1],-1);
-  c=l%(MAXM+1);
-  l/=(MAXM+1);
-  frontj=l*c;
-
-  l=frontFill(ctable,1,m,1,ctable[1][m],-1);
-  c=l%(MAXM+1);
-  l/=(MAXM+1);
-  fronts=l*c;
-
-  return frontj-fronts;
-}
-
 int getPos(int table[MAXN+2][MAXM+2]){
   int score=0;
 
   score+=getDist(table)*14;
 
   score+=getFrontIncad(table);
-
-  score/=15;
 
   return score;
 }
@@ -297,6 +136,7 @@ int negamax(int depth,int table[MAXN+2][MAXM+2],int alpha,int beta,int jucl,int 
           ctable[l][c]=table[l][c];
         }
       }
+      //TODO: trebuie implementata mutarea rapida, care calculeaza toata evaluarea statica
       fill(ctable,jucl,jucc,ctable[jucl][jucc],char2int[mut[icolor]]);
 
       score=-negamax(depth+1,ctable,-beta,-alpha,(jucl==1?n:1),(jucc==1?m:1));
@@ -315,6 +155,7 @@ int negamax(int depth,int table[MAXN+2][MAXM+2],int alpha,int beta,int jucl,int 
           ctable[l][c]=table[l][c];
         }
       }
+      //TODO: trebuie implementata mutarea rapida, care calculeaza toata evaluarea statica
       fill(ctable,jucl,jucc,ctable[jucl][jucc],char2int[mut[icolor]]);
 
       score=-negamax(depth+1,ctable,-beta,-alpha,(jucl==1?n:1),(jucc==1?m:1));
