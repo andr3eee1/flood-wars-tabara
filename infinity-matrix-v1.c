@@ -7,14 +7,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include "hash.h"
 
 #define MAXN 50
 #define MAXM 50
 #define INFINIT 2147483647
 #define MAXDEPTH 30
 #define MAXTIME 980000 // 0.98 sec
-#define LSIZE ((MAXM+MAXN)*75+1)
-#define NIL -1
 
 struct timeval tv;
 int cont;
@@ -32,9 +31,6 @@ static inline long long checktime() {
 int mat[MAXN+2][MAXM+2];
 int n,m,scorej,scores;
 char juc,mutch;
-
-int frontl[2][LSIZE],frontc[2][LSIZE];
-int nrfront[2];
 
 char mut[]={'@','#','+','*','.'};
 
@@ -55,15 +51,6 @@ static inline int abs_(int x){
   return (x<0?-x:x);
 }
 
-void cpTable(int table[MAXN+2][MAXM+2],int ctable[MAXN+2][MAXM+2]){
-  int l,c;
-  for(l=0;l<=n+1;l++){
-    for(c=0;c<=m+1;c++){
-      ctable[l][c]=table[l][c];
-    }
-  }
-}
-
 int fill(int table[MAXN+2][MAXM+2],int l,int c,int tf,int f){
   int rez=1;
 
@@ -80,42 +67,6 @@ int fill(int table[MAXN+2][MAXM+2],int l,int c,int tf,int f){
   }
   if(table[l][c-1]==tf){
     rez+=fill(table,l,c-1,tf,f);
-  }
-
-  return rez;
-}
-
-int updateFill(int table[MAXN+2][MAXM+2],int l,int c,int tf,int f,int newfrontl[],int newfrontc[],int newnrfront[]){
-  int rez=1;
-
-  table[l][c]=f;
-
-  if(table[l-1][c]==tf){
-    rez+=updateFill(table,l-1,c,tf,f,newfrontl,newfrontc,newnrfront);
-  }else if(table[l-1][c]!=-1&&table[l-1][c]!=f){
-    newfrontl[newnrfront[0]]=l-1;
-    newfrontc[newnrfront[0]++]=c;
-  }
-
-  if(table[l][c+1]==tf){
-    rez+=updateFill(table,l,c+1,tf,f,newfrontl,newfrontc,newnrfront);
-  }else if(table[l][c+1]!=-1&&table[l][c+1]!=f){
-    newfrontl[newnrfront[0]]=l;
-    newfrontc[newnrfront[0]++]=c+1;
-  }
-
-  if(table[l+1][c]==tf){
-    rez+=updateFill(table,l+1,c,tf,f,newfrontl,newfrontc,newnrfront);
-  }else if(table[l+1][c]!=-1&&table[l+1][c]!=f){
-    newfrontl[newnrfront[0]]=l+1;
-    newfrontc[newnrfront[0]++]=c;
-  }
-
-  if(table[l][c-1]==tf){
-    rez+=updateFill(table,l,c-1,tf,f,newfrontl,newfrontc,newnrfront);
-  }else if(table[l][c-1]!=-1&&table[l][c-1]!=f){
-    newfrontl[newnrfront[0]]=l;
-    newfrontc[newnrfront[0]++]=c-1;
   }
 
   return rez;
@@ -304,33 +255,31 @@ int getFrontIncad(int table[MAXN+2][MAXM+2]){
 int getPos(int table[MAXN+2][MAXM+2]){
   int score=0;
 
-  score+=getDist(table);
+  score+=getDist(table)*14;
 
   score+=getFrontIncad(table);
+
+  score/=15;
 
   return score;
 }
 
-#define POS ((MAXM+MAXN+1)+(MAXN*MAXM))
+#define POS ((MAXM+MAXN+1)*14+(MAXN*MAXM))
 
 int evalStatic(int table[MAXN+2][MAXM+2]){
   int score=0;
 
   //evaluare dupa punctaj
-  score+=(scorej-scores)*POS;
+  score+=getScore(table)*POS;
 
-  // score+=getPos(table);
+  score+=getPos(table);
 
   return score;
 }
 
 int negamax(int depth,int table[MAXN+2][MAXM+2],int alpha,int beta,int jucl,int jucc){
-  int icolor,score,l,c,arie,j;
+  int icolor,score,l,c;
   int ctable[MAXN+2][MAXM+2];
-  int auxl[LSIZE],auxc[LSIZE],auxnr[1]={0},aux;//auxnr is array bc I don't like pointers :|
-
-  int cfrontl[2][LSIZE],cfrontc[2][LSIZE];
-  int cnrfront[2];
 
   if(maxdepth-depth==5){
     cont=((checktime()-tbase)<MAXTIME);
@@ -343,46 +292,14 @@ int negamax(int depth,int table[MAXN+2][MAXM+2],int alpha,int beta,int jucl,int 
   if(cont&&killer[depth]>=0){
     icolor=killer[depth];
     if(mut[icolor]!=int2char[table[n][1]]&&mut[icolor]!=int2char[table[1][m]]){
-      // for(l=0;l<=n+1;l++){
-      //   for(c=0;c<=m+1;c++){
-      //     ctable[l][c]=table[l][c];
-      //   }
-      // }
-      // fill(ctable,jucl,jucc,ctable[jucl][jucc],char2int[mut[icolor]]);
-
-      j=(jucl==n&&jucc==1?0:1);
-      for(l=0;l<nrfront[j];l++){
-        if(table[frontl[j][l]][frontc[j][l]]==char2int[mut[icolor]]){
-          cpTable(table,ctable);
-          arie=updateFill(ctable,frontl[j][l],frontc[j][l],table[frontl[j][l]][frontc[j][l]],-2,auxl,auxc,auxnr);
-          if(j==0){
-            scorej+=arie;
-          }else{
-            scores+=arie;
-          }
+      for(l=0;l<=n+1;l++){
+        for(c=0;c<=m+1;c++){
+          ctable[l][c]=table[l][c];
         }
       }
-
-
-      cnrfront[j]=nrfront[j];
-      for(l=0;l<nrfront[j];l++){
-        cfrontl[j][l]=frontl[j][l];
-        cfrontc[j][l]=frontc[j][l];
-      }
-
-      nrfront[j]=0;
-      for(l=0;l<auxnr[0];l++){
-        frontl[j][nrfront[j]]=auxl[l];
-        frontc[j][nrfront[j]++]=auxc[l];
-      }
+      fill(ctable,jucl,jucc,ctable[jucl][jucc],char2int[mut[icolor]]);
 
       score=-negamax(depth+1,ctable,-beta,-alpha,(jucl==1?n:1),(jucc==1?m:1));
-
-      nrfront[j]=cnrfront[j];
-      for(l=0;l<cnrfront[j];l++){
-        frontl[j][l]=cfrontl[j][l];
-        frontc[j][l]=cfrontc[j][l];
-      }
 
       if(score>alpha){
         alpha=score;
@@ -393,46 +310,14 @@ int negamax(int depth,int table[MAXN+2][MAXM+2],int alpha,int beta,int jucl,int 
   icolor=0;
   while(cont&&alpha<beta&&icolor<5){
     if(icolor!=killer[depth]&&mut[icolor]!=int2char[table[n][1]]&&mut[icolor]!=int2char[table[1][m]]){
-      // for(l=0;l<=n+1;l++){
-      //   for(c=0;c<=m+1;c++){
-      //     ctable[l][c]=table[l][c];
-      //   }
-      // }
-      // fill(ctable,jucl,jucc,ctable[jucl][jucc],char2int[mut[icolor]]);
-
-      j=(jucl==n&&jucc==1?0:1);
-      for(l=0;l<nrfront[j];l++){
-        if(table[frontl[j][l]][frontc[j][l]]==char2int[mut[icolor]]){
-          cpTable(table,ctable);
-          arie=updateFill(ctable,frontl[j][l],frontc[j][l],table[frontl[j][l]][frontc[j][l]],-2,auxl,auxc,auxnr);
-          if(j==0){
-            scorej+=arie;
-          }else{
-            scores+=arie;
-          }
+      for(l=0;l<=n+1;l++){
+        for(c=0;c<=m+1;c++){
+          ctable[l][c]=table[l][c];
         }
       }
-
-
-      cnrfront[j]=nrfront[j];
-      for(l=0;l<nrfront[j];l++){
-        cfrontl[j][l]=frontl[j][l];
-        cfrontc[j][l]=frontc[j][l];
-      }
-
-      nrfront[j]=0;
-      for(l=0;l<auxnr[0];l++){
-        frontl[j][nrfront[j]]=auxl[l];
-        frontc[j][nrfront[j]++]=auxc[l];
-      }
+      fill(ctable,jucl,jucc,ctable[jucl][jucc],char2int[mut[icolor]]);
 
       score=-negamax(depth+1,ctable,-beta,-alpha,(jucl==1?n:1),(jucc==1?m:1));
-
-      nrfront[j]=cnrfront[j];
-      for(l=0;l<cnrfront[j];l++){
-        frontl[j][l]=cfrontl[j][l];
-        frontc[j][l]=cfrontc[j][l];
-      }
 
       if(score>alpha){
         alpha=score;
@@ -490,21 +375,6 @@ int main(){
   for(l=0;l<MAXDEPTH;l++){
     killer[l]=-1;
   }
-
-  nrfront[0]=0;
-  frontl[0][nrfront[0]]=n-1;
-  frontc[0][nrfront[0]++]=1;
-  frontl[0][nrfront[0]]=n;
-  frontc[0][nrfront[0]++]=2;
-
-  nrfront[1]=0;
-  frontl[1][nrfront[1]]=1;
-  frontc[1][nrfront[1]++]=m-1;
-  frontl[1][nrfront[1]]=2;
-  frontc[1][nrfront[1]++]=m;
-
-  scorej=scores=1;
-
   tbase=checktime();
 
   maxicolor=100;//ceva fictional, pentru debug
