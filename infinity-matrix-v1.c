@@ -11,7 +11,7 @@
 #define MAXN 50
 #define MAXM 50
 #define INFINIT 2147483647
-#define MAXDEPTH 100
+#define MAXDEPTH 7
 #define MAXTIME 980000 // 0.98 sec
 #define NCOADA 256
 #define NDIR 4
@@ -81,90 +81,60 @@ void makeMove(int color, int juc) {
     }
   }
 
-  if(juc == 0) {
-    while(ramase > 0) { // cat timp mai avem celule noi neprocesate
-      // luam prima pozitie din coada
-      l = scor[juc].frontiera.coadal[scor[juc].frontiera.prim];
-      c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
-      scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
+  while(ramase > 0) { // cat timp mai avem celule noi neprocesate
+    // luam prima pozitie din coada
+    l = scor[juc].frontiera.coadal[scor[juc].frontiera.prim];
+    c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
+    if(l == 48 && c == 33) {
+      printf("\n");
+      for(i = scor[juc].frontiera.prim; i != scor[juc].frontiera.ultim; i = (i + 1) % NCOADA) {
+        printf("%d %d\n", scor[juc].frontiera.coadal[i], scor[juc].frontiera.coadac[i]);
+      }
+      exit(0);
+    }
+    scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
 
-      printf("%d %d: %c %c %d\n",l,c,mut[color], mut[(int)mat[l][c]], ramase);
-      printf("%d %d\n",scor[juc].frontiera.prim,scor[juc].frontiera.ultim);
-      if(mat[l][c] == color) {
-        ramase--; // am mai procesat o culoare
+    printf("%d %d: %c %c %d\n",l,c,mut[color], mut[(int)mat[l][c]], ramase);
+    printf("%d %d\n",scor[juc].frontiera.prim,scor[juc].frontiera.ultim);
+    if(mat[l][c] == color) {
+      ramase--; // am mai procesat o culoare
 
-        // actualizam scorurile
-        scor[0].arie++;
+      // actualizam scorurile
+      scor[juc].arie++;
+      if(juc==0){
         scor[0].dist = min(scor[0].dist, l - 1 + m - c);
         scor[0].frontl = max(scor[0].frontl, n + 1 - l);
         scor[0].frontc = max(scor[0].frontc, c);
-
-        for(dir = 0; dir < NDIR; dir++) {
-          lnou = l + dlin[dir];
-          cnou = c + dcol[dir];
-          if(viz[lnou][cnou] == 0) {
-            viz[lnou][cnou] = 1;
-
-            // adaugam noua pozitie in coada
-            scor[juc].frontiera.coadal[scor[juc].frontiera.ultim] = lnou;
-            scor[juc].frontiera.coadac[scor[juc].frontiera.ultim] = cnou;
-            scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
-
-            if(mat[lnou][cnou] == color) {
-              ramase++; // avem o noua pozitie de procesat
-        //      printf("lol\n");
-            }
-          }
-        }
-      } else { // nu este buna asa ca o adaugam inapoi in coada
-        scor[juc].frontiera.coadal[scor[juc].frontiera.ultim] = l;
-        scor[juc].frontiera.coadac[scor[juc].frontiera.ultim] = c;
-        scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
-      }
-    }
-  } else {
-    while(ramase > 0) { // cat timp mai avem celule noi neprocesate
-      // luam prima pozitie din coada
-      l = scor[juc].frontiera.coadal[scor[juc].frontiera.prim];
-      c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
-      scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
-
-      printf("%d %d: %c %c %d\n",l,c,mut[color], mut[(int)mat[l][c]], ramase);
-      printf("%d %d\n",scor[juc].frontiera.prim,scor[juc].frontiera.ultim);
-      if(mat[l][c] == color) {
-        ramase--; // am mai procesat o culoare
-
-        // actualizam scorurile
-        scor[1].arie++;
+      }else{
         scor[1].dist = min(scor[1].dist, n - l + c - 1);
-        scor[0].frontl = max(scor[0].frontl, l);
-        scor[0].frontc = max(scor[0].frontc, m + 1 - c);
+        scor[1].frontl = max(scor[1].frontl, l);
+        scor[1].frontc = max(scor[1].frontc, m + 1 - c);
+      }
 
-        for(dir = 0; dir < NDIR; dir++) {
-          lnou = l + dlin[dir];
-          cnou = c + dcol[dir];
-          if(viz[lnou][cnou] == 0) {
-            viz[lnou][cnou] = 1;
+      for(dir = 0; dir < NDIR; dir++) {
+        lnou = l + dlin[dir];
+        cnou = c + dcol[dir];
+        if(viz[lnou][cnou] == 0) {
+          viz[lnou][cnou] = 1;
 
-            // adaugam noua pozitie in coada
-            scor[juc].frontiera.coadal[scor[juc].frontiera.ultim] = lnou;
-            scor[juc].frontiera.coadac[scor[juc].frontiera.ultim] = cnou;
-            scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
+          // adaugam noua pozitie in coada
+          scor[juc].frontiera.coadal[scor[juc].frontiera.ultim] = lnou;
+          scor[juc].frontiera.coadac[scor[juc].frontiera.ultim] = cnou;
+          scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
 
-            if(mat[lnou][cnou] == color) {
-              ramase++; // avem o noua pozitie de procesat
-      //        printf("lol\n");
-            }
+          if(mat[lnou][cnou] == color) {
+            ramase++; // avem o noua pozitie de procesat
+      //      printf("lol\n");
           }
         }
-      } else { // nu este buna asa ca o adaugam inapoi in coada
-        scor[juc].frontiera.coadal[scor[juc].frontiera.ultim] = l;
-        scor[juc].frontiera.coadac[scor[juc].frontiera.ultim] = c;
-        scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
       }
+    } else { // nu este buna asa ca o adaugam inapoi in coada
+      scor[juc].frontiera.coadal[scor[juc].frontiera.ultim] = l;
+      scor[juc].frontiera.coadac[scor[juc].frontiera.ultim] = c;
+      scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
     }
   }
-  printf("\n");
+  // printf("\n");
 }
 
 // evaluarea statica a tablei
@@ -176,8 +146,9 @@ int evalStatic(int depth) {
 }
 
 int negamax(int depth,int alpha,int beta){
-  int icolor,score, startKiller, i;
+  int icolor,score, startKiller, l, c;
   struct Scor oldscor;
+  char oldviz[MAXN + 2][MAXN + 2];
 
   if(maxdepth-depth==5){
     cont=((checktime()-tbase)<MAXTIME);
@@ -188,6 +159,11 @@ int negamax(int depth,int alpha,int beta){
   }
 
   oldscor = scor[(int)juc];
+  for(l = 0; l <= n + 1; l++) {
+    for(c = 0; c <= m + 1; c++) {
+      oldviz[l][c] = viz[l][c];
+    }
+  }
 
   startKiller = killer[depth];
   if(cont&&killer[depth]>=0){
@@ -201,15 +177,11 @@ int negamax(int depth,int alpha,int beta){
         alpha=score;
       }
 
-      for(i = scor[(int)juc].frontiera.prim; i != scor[(int)juc].frontiera.ultim; i = (i + 1) % NCOADA) {
-        viz[(int)scor[(int)juc].frontiera.coadal[i]][(int)scor[(int)juc].frontiera.coadac[i]] = 0;
-      }
-      scor[(int)juc].frontiera.prim = scor[(int)juc].frontiera.ultim = 0;
-      for(i = oldscor.frontiera.prim; i != oldscor.frontiera.ultim; i = (i + 1) % NCOADA) {
-        viz[(int)oldscor.frontiera.coadal[i]][(int)oldscor.frontiera.coadac[i]] = 1;
-        scor[(int)juc].frontiera.coadal[scor[(int)juc].frontiera.ultim] = oldscor.frontiera.coadal[i];
-        scor[(int)juc].frontiera.coadac[scor[(int)juc].frontiera.ultim] = oldscor.frontiera.coadac[i];
-        scor[(int)juc].frontiera.ultim = (scor[(int)juc].frontiera.ultim + 1) % NCOADA;
+      scor[(int)juc] = oldscor;
+      for(l = 0; l <= n + 1; l++) {
+        for(c = 0; c <= m + 1; c++) {
+          viz[l][c] = oldviz[l][c];
+        }
       }
     }
   }
@@ -226,15 +198,11 @@ int negamax(int depth,int alpha,int beta){
         killer[depth]=icolor;
       }
 
-      for(i = scor[(int)juc].frontiera.prim; i != scor[(int)juc].frontiera.ultim; i = (i + 1) % NCOADA) {
-        viz[(int)scor[(int)juc].frontiera.coadal[i]][(int)scor[(int)juc].frontiera.coadac[i]] = 0;
-      }
-      scor[(int)juc].frontiera.prim = scor[(int)juc].frontiera.ultim = 0;
-      for(i = oldscor.frontiera.prim; i != oldscor.frontiera.ultim; i = (i + 1) % NCOADA) {
-        viz[(int)oldscor.frontiera.coadal[i]][(int)oldscor.frontiera.coadac[i]] = 1;
-        scor[(int)juc].frontiera.coadal[scor[(int)juc].frontiera.ultim] = oldscor.frontiera.coadal[i];
-        scor[(int)juc].frontiera.coadac[scor[(int)juc].frontiera.ultim] = oldscor.frontiera.coadac[i];
-        scor[(int)juc].frontiera.ultim = (scor[(int)juc].frontiera.ultim + 1) % NCOADA;
+      scor[(int)juc] = oldscor;
+      for(l = 0; l <= n + 1; l++) {
+        for(c = 0; c <= m + 1; c++) {
+          viz[l][c] = oldviz[l][c];
+        }
       }
     }
     icolor++;
@@ -303,12 +271,12 @@ int main(){
   scor[0].frontiera.coadac[0] = 1;
   scor[1].frontiera.coadal[0] = 1;
   scor[1].frontiera.coadac[0] = m;
+  viz[n][1] = viz[1][m] = 1;
   makeMove(mat[n][1], 0);
   makeMove(mat[1][m], 1);
-  viz[n][1] = viz[1][m] = 1;
 
   // resetare killermove
-  for(l=0;l<MAXDEPTH;l++){
+  for(l=0;l<=MAXDEPTH;l++){
     killer[l]=-1;
   }
 
