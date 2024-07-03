@@ -17,6 +17,11 @@
 #define NCOADA 256
 #define NDIR 4
 
+// ponderii (pentru scor)
+#define PONDER_MATERIAL 2500 
+#define PONDER_DISTANTA 1
+#define PONDER_FRONTIERA 1
+
 struct timeval tv;
 int cont;
 long long tbase;
@@ -64,12 +69,12 @@ int dlin[NDIR] = {-1, 0, 1, 0}, dcol[NDIR] = {0, 1, 0, -1};
 
 // facem mutare in color pentru jucatorul juc
 void makeMove(int color, int juc) {
-  int oldultim, dir, lnou, cnou;
+  int oldultim, dir, lnou, cnou, l, c;
 
   // copy paste, urat dar ajuta pentru a evita un test
   oldultim = frontiera[juc].ultim;
   if(juc == 0) { // jucatorul de jos
-    while(prim != oldultim) {
+    while(frontiera[juc].prim != oldultim) {
       // luam prima pozitie din coada
       l = frontiera[juc].coadal[frontiera[juc].prim];
       c = frontiera[juc].coadac[frontiera[juc].prim];
@@ -80,8 +85,8 @@ void makeMove(int color, int juc) {
         lnou = l + dlin[dir];
         cnou = c + dcol[dir];
         
-        if(viz[lnou][cnou] == 0 && mat[lnou][cnou] == color) // daca nu e luata si e culoarea buna
-          viz[lnou][ncou] = 1;
+        if(viz[lnou][cnou] == 0 && mat[lnou][cnou] == color) { // daca nu e luata si e culoarea buna
+          viz[lnou][cnou] = 1;
 
           // adaugam noua pozitie in coada
           frontiera[juc].coadal[frontiera[juc].ultim] = lnou;
@@ -127,25 +132,28 @@ void makeMove(int color, int juc) {
   }
 }
 
-// TODO: de implementat evaluarea statica a tablei
-int evalStatic() {
-  
+// evaluarea statica a tablei
+int evalStatic(int depth) {
+  return (1 - depth % 2 * 2) * (PONDER_MATERIAL * (arie[0] - arie[1]) + // scorul material
+                                PONDER_DISTANTA * (dist[0] - dist[1]) + // distanta pana la adversar
+                                PONDER_FRONTIERA * ((n - frontl[0] + 1) * frontc[0] -
+                                                    frontl[1] * (m - frontc[0] + 1))); // si frontiera de incadrare
 }
 
 int negamax(int depth,int alpha,int beta){
-  int icolor,score,l,c;
+  int icolor,score;
 
   if(maxdepth-depth==5){
     cont=((checktime()-tbase)<MAXTIME);
   }
 
   if(cont&&depth==maxdepth){
-    return (((depth+(1-juc)))&1)*2-1)*evalStatic();
+    return ((depth+1-juc)%2*2-1)*evalStatic(depth);
   }
 
   if(cont&&killer[depth]>=0){
     icolor=killer[depth];
-    if(mut[icolor]!=int2char[table[n][1]]&&mut[icolor]!=int2char[table[1][m]]){
+    if(icolor!=mat[n][1]&&icolor!=mat[1][m]){
       makeMove(icolor, juc ^ (depth % 2)); // juc pentru par si juc^1 pentru impar
       
       score=-negamax(depth+1,-beta,-alpha);
@@ -158,7 +166,7 @@ int negamax(int depth,int alpha,int beta){
 
   icolor=0;
   while(cont&&alpha<beta&&icolor<5){
-    if(icolor!=killer[depth]&&mut[icolor]!=int2char[table[n][1]]&&mut[icolor]!=int2char[table[1][m]]){
+    if(icolor!=killer[depth]&&icolor!=mat[n][1]&&icolor!=mat[1][m]){
       makeMove(icolor, juc ^ (depth % 2)); // juc pentru par si juc^1 pentru impar
 
       score=-negamax(depth+1,-beta,-alpha);
@@ -174,9 +182,21 @@ int negamax(int depth,int alpha,int beta){
   return alpha<beta?alpha:beta;
 }
 
+// fill care schimba toate pozitiile cu culoarea vechi in nou
+void fillMutare(int l, int c, int vechi, int nou) {
+  int dir;
+
+  mat[l][c] = nou;
+  for(dir = 0; dir < NDIR; dir++) {
+    if(mat[l + dlin[dir]][c + dcol[dir]] == vechi) { // daca e de schimbat 
+      fillMutare(l + dlin[dir], c + dcol[dir], vechi, nou);
+    }
+  }
+}
+
 int main(){
-  int l,c,ljuc,cjuc,maxicolor;
-  char ch,chjuc;
+  int l,c,maxicolor;
+  char ch;
 
   // initializari frontiera si scoruri
   frontiera[0].prim = frontiera[1].prim = 0;
@@ -217,15 +237,6 @@ int main(){
     mat[0][c]=mat[n+1][c]=-1;
   }
 
-  chjuc=int2char[mat[n][1]];
-  ljuc=n;
-  cjuc=1;
-  if(juc=='S'){
-    chjuc=int2char[mat[1][m]];
-    ljuc=1;
-    cjuc=m;
-  }
-
   // resetare killermove
   for(l=0;l<MAXDEPTH;l++){
     killer[l]=-1;
@@ -234,17 +245,22 @@ int main(){
   maxicolor=100;//ceva fictional, pentru debug
   cont=maxdepth=1;
   while((checktime()-tbase)<MAXTIME&&maxdepth<=MAXDEPTH){
-    negamax(0,mat,-INFINIT,INFINIT,ljuc,cjuc);
+    negamax(0,-INFINIT,INFINIT);
     maxdepth++;
     if(cont){
       maxicolor=killer[0];
     }
   }
-  
-  // TODO: mutarea finala
+
+  // mutarea finala
+  if(juc == 0) {
+    fillMutare(n, 1, mat[n][1], maxicolor);
+  } else {
+    fillMutare(1, m, mat[1][m], maxicolor);
+  }
 
   // afisare tabla
-  fputc(juc == 0 ? 'S' ? 'J', stdout);
+  fputc(juc == 0 ? 'S' : 'J', stdout);
   fputc('\n',stdout);
   for(l=1;l<=n;l++){
     for(c=1;c<=m;c++){
