@@ -75,8 +75,8 @@ void makeMove(int color, int juc) {
   int ramase, i, l, c, dir, lnou, cnou;
 
   ramase = 0; // numaram numarul de celule noi neprocesate
-  for(i = scor[juc].frontiera.prim; i != scor[juc].frontiera.ultim; i = (i + 1) % NCOADA) {
-    if(mat[scor[juc].frontiera.coadal[i]][scor[juc].frontiera.coadac[i]] == color) {
+  for(i = scor[(int)juc].frontiera.prim; i != scor[(int)juc].frontiera.ultim; i = (i + 1) % NCOADA) {
+    if(mat[(int)scor[(int)juc].frontiera.coadal[i]][(int)scor[(int)juc].frontiera.coadac[i]] == color) {
       ramase++;
     }
   }
@@ -185,7 +185,7 @@ int negamax(int depth,int alpha,int beta){
     return (1 - 2 * ((depth % 2) ^ juc)) * evalStatic(depth);
   }
 
-  oldscor = scor[juc];
+  oldscor = scor[(int)juc];
 
   startKiller = killer[depth];
   if(cont&&killer[depth]>=0){
@@ -200,10 +200,10 @@ int negamax(int depth,int alpha,int beta){
       }
 
       // avand in vedere ca lenea ma domina, nu mai creez o variabila noua
-      for(icolor = scor[juc].frontiera.prim; icolor != scor[juc].frontiera.ultim; icolor = (icolor + 1) % NCOADA) {
-        viz[scor[juc].frontiera.coadal[i]][scor[juc].frontiera.coadac[i]] = 0;
+      for(icolor = scor[(int)juc].frontiera.prim; icolor != scor[(int)juc].frontiera.ultim; icolor = (icolor + 1) % NCOADA) {
+        viz[(int)scor[(int)juc].frontiera.coadal[icolor]][(int)scor[(int)juc].frontiera.coadac[icolor]] = 0;
       }
-      scor[juc] = oldscor;
+      scor[(int)juc] = oldscor;
     }
   }
 
@@ -220,10 +220,10 @@ int negamax(int depth,int alpha,int beta){
       }
 
       // avand in vedere ca lenea ma domina, nu mai creez o variabila noua
-      for(icolor = scor[juc].frontiera.prim; icolor != scor[juc].frontiera.ultim; icolor = (icolor + 1) % NCOADA) {
-        viz[scor[juc].frontiera.coadal[i]][scor[juc].frontiera.coadac[i]] = 0;
+      for(icolor = scor[(int)juc].frontiera.prim; icolor != scor[(int)juc].frontiera.ultim; icolor = (icolor + 1) % NCOADA) {
+        viz[(int)scor[(int)juc].frontiera.coadal[icolor]][(int)scor[(int)juc].frontiera.coadac[icolor]] = 0;
       }
-      scor[juc] = oldscor;
+      scor[(int)juc] = oldscor;
     }
     icolor++;
   }
@@ -250,7 +250,7 @@ int main(){
   tbase = checktime();
 
   for(l=0;l<5;l++){
-    char2int[mut[l]]=l;
+    char2int[(int)mut[l]]=l;
     int2char[l]=mut[l];
   }
 
@@ -263,7 +263,7 @@ int main(){
   while(!feof(stdin)){
     m=1;
     while(ch!='\n'){
-      mat[n][m++]=char2int[ch];
+      mat[n][m++]=char2int[(int)ch];
       ch=fgetc(stdin);
     }
     ch=fgetc(stdin);
@@ -324,7 +324,7 @@ int main(){
   fputc('\n',stdout);
   for(l=1;l<=n;l++){
     for(c=1;c<=m;c++){
-      fputc(int2char[mat[l][c]],stdout);
+      fputc(int2char[(int)mat[l][c]],stdout);
     }
     fputc('\n',stdout);
   }
