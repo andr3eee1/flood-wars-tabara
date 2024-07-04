@@ -85,11 +85,9 @@ char viz[MAXDEPTH + 1][MAXN + 2][MAXN + 2];
 #define NDIR 4
 int dlin[] = {-1, 0, 1, 0}, dcol[] = {0, 1, 0, -1};
 
-#define PONDER_DISTANTA 1
-#define MAX_DISTANTA 100
+#define PONDER_DISTANTA 14
 #define PONDER_FRONTIERA 1
-#define MAX_FRONTIERA 2500
-#define PONDER_MATERIAL (PONDER_DISTANTA * MAX_DISTANTA + PONDER_FRONTIERA * MAX_FRONTIERA + 1)
+#define PONDER_MATERIAL 3800
 // evaluarea statica a tablei la adancime depth
 int evalStatic(int depth) {
   return PONDER_MATERIAL * (arie[depth][0] - arie[depth][1]) + // scorul material
@@ -270,6 +268,7 @@ int main() {
   }
 
   //fprintf(stderr, "%d\n", final_move);
+  //fprintf(stderr, "%d\n", max_depth);
 
   // facem mutarea final_move
   if(juc == 0) {
