@@ -1,5 +1,5 @@
 #!/bin/bash
 
-gcc -Wall -O2 -o infinity-matrix-v1 infinity-matrix-v1.c hash.c
+gcc -Wall -O2 -o infinity-war-v2 infinity-war-v2.c hash.c
 
-time ./infinity-matrix-v1 < tabla.in
+time ./infinity-war-v2 < tabla.in
