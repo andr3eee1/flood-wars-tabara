@@ -11,9 +11,9 @@
 #define MAXN 50
 #define MAXM 50
 #define INFINIT 2147483647
-#define MAXDEPTH 7
+#define MAXDEPTH 30
 #define MAXTIME 980000 // 0.98 sec
-#define NCOADA 4096
+#define NCOADA 65536
 #define NDIR 4
 
 // ponderii (pentru scor)
@@ -84,7 +84,7 @@ void makeMove(int color, int juc) {
     c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
     scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
 
-    printf("%d %d: %c %c %d\n",l,c,mut[color], mut[(int)mat[l][c]], ramase);
+    // printf("%d %d: %c %c %d\n",l,c,mut[color], mut[(int)mat[l][c]], ramase);
     // printf("%d %d\n",scor[juc].frontiera.prim,scor[juc].frontiera.ultim);
     if(mat[l][c] == color) {
       ramase--; // am mai procesat o culoare
