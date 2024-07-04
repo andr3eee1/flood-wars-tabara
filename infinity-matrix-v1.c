@@ -78,7 +78,7 @@ void makeMove(int color, int juc) {
     }
   }
 
-  while(ramase > 0) { // cat timp mai avem celule noi neprocesate
+  while(ramase > 0 && scor[juc].frontiera.prim != scor[juc].frontiera.ultim) { // cat timp mai avem celule noi neprocesate
     // luam prima pozitie din coada
     l = scor[juc].frontiera.coadal[scor[juc].frontiera.prim];
     c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
@@ -163,6 +163,13 @@ int negamax(int depth,int alpha,int beta){
   if(cont&&killer[depth]>=0){
     icolor=killer[depth];
     if(icolor!=mat[n][1]&&icolor!=mat[1][m]){
+      oldscor = scor[(int)juc];
+      for(l = 0; l <= n + 1; l++) {
+        for(c = 0; c <= m + 1; c++) {
+          oldviz[l][c] = viz[l][c];
+        }
+      }
+
       makeMove(icolor, juc ^ (depth % 2)); // juc pentru par si juc^1 pentru impar
       
       score=-negamax(depth+1,-beta,-alpha);
@@ -183,6 +190,12 @@ int negamax(int depth,int alpha,int beta){
   icolor=0;
   while(cont&&alpha<beta&&icolor<5){
     if(icolor!=startKiller&&icolor!=mat[n][1]&&icolor!=mat[1][m]){
+      oldscor = scor[(int)juc];
+      for(l = 0; l <= n + 1; l++) {
+        for(c = 0; c <= m + 1; c++) {
+          oldviz[l][c] = viz[l][c];
+        }
+      }
       makeMove(icolor, juc ^ (depth % 2)); // juc pentru par si juc^1 pentru impar
 
       score=-negamax(depth+1,-beta,-alpha);
