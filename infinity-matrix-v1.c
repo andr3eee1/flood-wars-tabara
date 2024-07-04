@@ -13,7 +13,7 @@
 #define INFINIT 2147483647
 #define MAXDEPTH 7
 #define MAXTIME 980000 // 0.98 sec
-#define NCOADA 256
+#define NCOADA 4096
 #define NDIR 4
 
 // ponderii (pentru scor)
@@ -84,11 +84,11 @@ void makeMove(int color, int juc) {
     c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
     scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
 
-    //printf("%d %d: %c %c %d\n",l,c,mut[color], mut[(int)mat[l][c]], ramase);
-    //printf("%d %d\n",scor[juc].frontiera.prim,scor[juc].frontiera.ultim);
+    printf("%d %d: %c %c %d\n",l,c,mut[color], mut[(int)mat[l][c]], ramase);
+    printf("%d %d\n",scor[juc].frontiera.prim,scor[juc].frontiera.ultim);
     if(mat[l][c] == color) {
       ramase--; // am mai procesat o culoare
-      printf("REMOVED %d %d %d\n", l, c, juc);
+      // printf("REMOVED %d %d %d\n", l, c, juc);
 
       // actualizam scorurile
       scor[juc].arie++;
@@ -116,7 +116,7 @@ void makeMove(int color, int juc) {
           if(mat[lnou][cnou] == color) {
             ramase++; // avem o noua pozitie de procesat
             //printf("lol\n");
-            printf("ADDED %d %d %d\n", lnou, cnou, juc);
+            // printf("ADDED %d %d %d\n", lnou, cnou, juc);
           }
         }
       }
@@ -126,7 +126,7 @@ void makeMove(int color, int juc) {
       scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
     }
   }
-  // printf("\n");
+  printf("\n");
 }
 
 // evaluarea statica a tablei
@@ -142,7 +142,7 @@ int negamax(int depth,int alpha,int beta){
   struct Scor oldscor;
   char oldviz[MAXN + 2][MAXN + 2];
 
-//  printf("%d\n", depth);
+  // printf("%d\n", depth);
 
   if(maxdepth-depth==5){
     cont=((checktime()-tbase)<MAXTIME);
