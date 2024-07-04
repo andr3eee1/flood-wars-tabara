@@ -84,11 +84,11 @@ void makeMove(int color, int juc) {
     c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
     scor[juc].frontiera.prim = (scor[juc].frontiera.prim + 1) % NCOADA; // avansam in coada
 
-    printf("%d %d: %c %c %d\n",l,c,mut[color], mut[(int)mat[l][c]], ramase);
-    printf("%d %d\n",scor[juc].frontiera.prim,scor[juc].frontiera.ultim);
+    //printf("%d %d: %c %c %d\n",l,c,mut[color], mut[(int)mat[l][c]], ramase);
+    //printf("%d %d\n",scor[juc].frontiera.prim,scor[juc].frontiera.ultim);
     if(mat[l][c] == color) {
       ramase--; // am mai procesat o culoare
-      // printf("REMOVED %d %d %d\n", l, c, juc);
+      //printf("REMOVED %d %d %d\n", l, c, juc);
 
       // actualizam scorurile
       scor[juc].arie++;
@@ -116,7 +116,7 @@ void makeMove(int color, int juc) {
           if(mat[lnou][cnou] == color) {
             ramase++; // avem o noua pozitie de procesat
             //printf("lol\n");
-            // printf("ADDED %d %d %d\n", lnou, cnou, juc);
+            //printf("ADDED %d %d %d\n", lnou, cnou, juc);
           }
         }
       }
@@ -126,7 +126,7 @@ void makeMove(int color, int juc) {
       scor[juc].frontiera.ultim = (scor[juc].frontiera.ultim + 1) % NCOADA;
     }
   }
-  printf("\n");
+  //printf("\n");
 }
 
 // evaluarea statica a tablei
@@ -269,19 +269,6 @@ int main(){
     viz[0][c] = viz[n + 1][c] = 1;
   }
 
-  // initializari frontiera si scoruri
-  scor[0].dist = scor[1].dist = n + m - 2;
-  scor[0].frontl = scor[0].frontc = scor[1].frontl = scor[1].frontc = 1;
-  scor[0].frontiera.prim = scor[1].frontiera.prim = 0;
-  scor[0].frontiera.ultim = scor[1].frontiera.ultim = 1;
-  scor[0].frontiera.coadal[0] = n;
-  scor[0].frontiera.coadac[0] = 1;
-  scor[1].frontiera.coadal[0] = 1;
-  scor[1].frontiera.coadac[0] = m;
-  viz[n][1] = viz[1][m] = 1;
-  makeMove(mat[n][1], 0);
-  makeMove(mat[1][m], 1);
-
   // resetare killermove
   for(l=0;l<=MAXDEPTH;l++){
     killer[l]=-1;
@@ -290,6 +277,18 @@ int main(){
   maxicolor=100;//ceva fictional, pentru debug
   cont=maxdepth=1;
   while((checktime()-tbase)<MAXTIME&&maxdepth<=MAXDEPTH){
+    // initializari frontiera si scoruri
+    scor[0].dist = scor[1].dist = n + m - 2;
+    scor[0].frontl = scor[0].frontc = scor[1].frontl = scor[1].frontc = 1;
+    scor[0].frontiera.prim = scor[1].frontiera.prim = 0;
+    scor[0].frontiera.ultim = scor[1].frontiera.ultim = 1;
+    scor[0].frontiera.coadal[0] = n;
+    scor[0].frontiera.coadac[0] = 1;
+    scor[1].frontiera.coadal[0] = 1;
+    scor[1].frontiera.coadac[0] = m;
+    viz[n][1] = viz[1][m] = 1;
+    makeMove(mat[n][1], 0);
+    makeMove(mat[1][m], 1);
     for(l = 1; l <= n; l++) {
       for(c = 1; c <= m; c++) {
         viz[l][c] = 0;
