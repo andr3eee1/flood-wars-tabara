@@ -78,7 +78,7 @@ void makeMove(int color, int juc) {
     }
   }
 
-  while(ramase > 0 && scor[juc].frontiera.prim != scor[juc].frontiera.ultim) { // cat timp mai avem celule noi neprocesate
+  while(ramase > 0) { // cat timp mai avem celule noi neprocesate
     // luam prima pozitie din coada
     l = scor[juc].frontiera.coadal[scor[juc].frontiera.prim];
     c = scor[juc].frontiera.coadac[scor[juc].frontiera.prim];
