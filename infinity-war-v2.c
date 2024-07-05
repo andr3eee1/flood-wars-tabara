@@ -85,9 +85,9 @@ char viz[MAXDEPTH + 1][MAXN + 2][MAXN + 2];
 #define NDIR 4
 int dlin[] = {-1, 0, 1, 0}, dcol[] = {0, 1, 0, -1};
 
-#define PONDER_DISTANTA 0
-#define PONDER_FRONTIERA 0
-#define PONDER_MATERIAL 1
+#define PONDER_DISTANTA 14
+#define PONDER_FRONTIERA 1
+#define PONDER_MATERIAL (PONDER_DISTANTA * 100 + PONDER_FRONTIERA * 2500 + 1) 
 // evaluarea statica a tablei la adancime depth
 int evalStatic(int depth) {
   return PONDER_MATERIAL * (arie[depth][0] - arie[depth][1]) + // scorul material
@@ -127,9 +127,9 @@ void makeMove(int depth, int juc, int color) {
     l = frontiera[depth][juc].coadal[frontiera[depth][juc].prim];
     c = frontiera[depth][juc].coadac[frontiera[depth][juc].prim];
     frontiera[depth][juc].prim = (frontiera[depth][juc].prim + 1) % NCOADA;
-    if(juc == 1) {
-//      fprintf(stderr, "%d %d\n", l, c);
-    }
+    // if(juc == 1) {
+    //   fprintf(stderr, "%d %d\n", l, c);
+    // }
 
     if(mat[l][c] == color) {
       ramase--;
@@ -149,6 +149,9 @@ void makeMove(int depth, int juc, int color) {
         lnou = l + dlin[dir];
         cnou = c + dcol[dir];
         if((viz[depth][lnou][cnou] & (juc + 1)) == 0) {// nu am vizitat cu juc?
+          // if(juc == 1) {
+          //   printf("%d %d %d\n", lnou, cnou, depth);
+          // }
           viz[depth][lnou][cnou] |= juc + 1;// viziteaza cu juc
           if(mat[lnou][cnou] == color) {
             ramase++;
@@ -247,7 +250,6 @@ int main() {
 
   start_time = checkTime();
   citireTabla();
-  makeFront();
 
   for(l = 0; l <= n + 1; l++) {
     viz[0][l][0] = viz[0][l][m + 1] = 3;
@@ -255,11 +257,12 @@ int main() {
   for(c = 0; c <= m + 1; c++) {
     viz[0][0][c] = viz[0][n + 1][c] = 3;
   }
+  makeFront();
 
   final_move = 0;
   max_depth = 0;
   cont = 1;
-  while((checkTime() - start_time) < MAXTIME && max_depth < MAXDEPTH) {
+  while((checkTime() - start_time) < MAXTIME && max_depth <= MAXDEPTH) {
     max_depth++;
     negamax(0, -INFINIT, INFINIT);
     if(cont) {
@@ -268,7 +271,7 @@ int main() {
   }
 
   //fprintf(stderr, "%d\n", final_move);
-  //fprintf(stderr, "%d\n", max_depth);
+  // fprintf(stderr, "%d\n", max_depth);
 
   // facem mutarea final_move
   if(juc == 0) {
