@@ -135,12 +135,12 @@ void makeMove(int depth, int juc, int color) {
       ramase--;
       if(juc == 0) {
         arie[depth][0]++;
-        dist[depth][0] = min(dist[depth][0], n - l + c - 1);
+        dist[depth][0] = min(dist[depth][0], l - 1 + m - c);
         frontl[depth][0] = max(frontl[depth][0], n - l + 1);
         frontc[depth][0] = max(frontc[depth][0], c);
       } else {
         arie[depth][1]++;
-        dist[depth][1] = min(dist[depth][1], l - 1 + m - c);
+        dist[depth][1] = min(dist[depth][1], n - l + c - 1);
         frontl[depth][1] = max(frontl[depth][1], l);
         frontc[depth][1] = max(frontc[depth][1], m - c + 1);
       }
@@ -148,8 +148,8 @@ void makeMove(int depth, int juc, int color) {
       for(dir = 0; dir < NDIR; dir++) {
         lnou = l + dlin[dir];
         cnou = c + dcol[dir];
-        if((viz[depth][lnou][cnou] & (juc + 1)) == 0) {
-          viz[depth][lnou][cnou] |= juc + 1;
+        if((viz[depth][lnou][cnou] & (juc + 1)) == 0) {// nu am vizitat cu juc?
+          viz[depth][lnou][cnou] |= juc + 1;// viziteaza cu juc
           if(mat[lnou][cnou] == color) {
             ramase++;
           }
