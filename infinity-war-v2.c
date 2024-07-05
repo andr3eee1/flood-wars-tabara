@@ -73,7 +73,7 @@ struct Coada {
 };
 
 #define MAXDEPTH 30
-#define INFINIT 200000000
+#define INFINIT 2147483647
 int max_depth;
 char killer[MAXDEPTH + 1]; // e deja 0, nu mai trebuie resetat
 int arie[MAXDEPTH + 1][2], dist[MAXDEPTH + 1][2];
@@ -85,9 +85,9 @@ char viz[MAXDEPTH + 1][MAXN + 2][MAXN + 2];
 #define NDIR 4
 int dlin[] = {-1, 0, 1, 0}, dcol[] = {0, 1, 0, -1};
 
-#define PONDER_DISTANTA 14
-#define PONDER_FRONTIERA 1
-#define PONDER_MATERIAL (PONDER_DISTANTA * 100 + PONDER_FRONTIERA * 2500 + 1) 
+#define PONDER_DISTANTA 45
+#define PONDER_FRONTIERA 40
+#define PONDER_MATERIAL (PONDER_DISTANTA * 100 + PONDER_FRONTIERA * MAXN * MAXN + 1) 
 // evaluarea statica a tablei la adancime depth
 int evalStatic(int depth) {
   return PONDER_MATERIAL * (arie[depth][0] - arie[depth][1]) + // scorul material
@@ -184,7 +184,14 @@ void makeFront() { // TODO: de adaugat zonele inglobate (if possible)
   viz[0][n][1] = 1;
   viz[0][1][m] = 2;
   makeMove(0, 0, mat[n][1]);
+  // for(int i = frontiera[0][0].prim; i != frontiera[0][0].ultim; i = (i + 1) % NCOADA) {
+  //   printf("unu %d %d\n", frontiera[0][0].coadal[i], frontiera[0][0].coadac[i]);
+  // }
   makeMove(0, 1, mat[1][m]);
+  // for(int i = frontiera[0][1].prim; i != frontiera[0][1].ultim; i = (i + 1) % NCOADA) {
+  //   printf("doi %d %d\n", frontiera[0][1].coadal[i], frontiera[0][1].coadac[i]);
+  // }
+  // exit(0);
 }
 
 int negamax(int depth, int alpha, int beta) {
@@ -204,6 +211,7 @@ int negamax(int depth, int alpha, int beta) {
     if(icolor != player_color[depth][0] && icolor != player_color[depth][1]) { // daca e mutare valida
       copyPlayerData(depth);
       makeMove(depth + 1, (depth + juc) & 1, icolor);
+      player_color[depth + 1][(depth + juc) & 1] = icolor;
 
       scor = -negamax(depth + 1, -beta, -alpha);
       if(scor > alpha) {
@@ -218,6 +226,7 @@ int negamax(int depth, int alpha, int beta) {
     if(icolor != start_killer && icolor != player_color[depth][0] && icolor != player_color[depth][1]) {
       copyPlayerData(depth);
       makeMove(depth + 1, (depth + juc) & 1, icolor);
+      player_color[depth + 1][(depth + juc) & 1] = icolor;
 
       scor = -negamax(depth + 1, -beta, -alpha);
       //fprintf(stderr, "%d %d\n", icolor, scor);
