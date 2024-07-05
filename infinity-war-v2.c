@@ -85,14 +85,14 @@ char viz[MAXDEPTH + 1][MAXN + 2][MAXN + 2];
 #define NDIR 4
 int dlin[] = {-1, 0, 1, 0}, dcol[] = {0, 1, 0, -1};
 
-#define PONDER_DISTANTA 14
-#define PONDER_FRONTIERA 1
-#define PONDER_MATERIAL 3800
+#define PONDER_DISTANTA 0
+#define PONDER_FRONTIERA 0
+#define PONDER_MATERIAL 1
 // evaluarea statica a tablei la adancime depth
 int evalStatic(int depth) {
   return PONDER_MATERIAL * (arie[depth][0] - arie[depth][1]) + // scorul material
          PONDER_DISTANTA * (dist[depth][0] - dist[depth][1]) + // distanta pana la adversar
-         PONDER_FRONTIERA * (frontl[depth][0] * frontc[depth][0] - // frontiera de incadrare 
+         PONDER_FRONTIERA * (frontl[depth][0] * frontc[depth][0] - // frontiera de incadrare
                              frontl[depth][1] * frontc[depth][1]);
 }
 
@@ -113,11 +113,11 @@ void copyPlayerData(int depth) {
     for(c = 0; c <= m + 1; c++) {
       viz[depth + 1][l][c] = viz[depth][l][c];
     }
-  }  
+  }
 }
 
 // face mutarea color pentru jucatorul juc
-void makeMove(int depth, int juc, int color) { // TODO: de scris
+void makeMove(int depth, int juc, int color) {
   int i, ramase = 0, l, c, dir, lnou, cnou;
 
   for(i = frontiera[depth][juc].prim; i != frontiera[depth][juc].ultim; i = (i + 1) % NCOADA) {
@@ -163,7 +163,7 @@ void makeMove(int depth, int juc, int color) { // TODO: de scris
       frontiera[depth][juc].coadac[frontiera[depth][juc].ultim] = c;
       frontiera[depth][juc].ultim = (frontiera[depth][juc].ultim + 1) % NCOADA;
     }
-  }  
+  }
 }
 
 // construieste frontiera initiala
@@ -188,7 +188,7 @@ int negamax(int depth, int alpha, int beta) {
   int icolor, start_killer, scor;
 
   if(max_depth - depth == 5) {
-    cont = (checkTime() - start_time < MAXTIME);
+    cont = ((checkTime() - start_time) < MAXTIME);
   }
 
   if(cont && depth == max_depth) {
@@ -243,7 +243,7 @@ void fillMutare(int l, int c, int vechi, int nou) {
 }
 
 int main() {
-  int final_move, l, c;   
+  int final_move, l, c;
 
   start_time = checkTime();
   citireTabla();
@@ -255,7 +255,7 @@ int main() {
   for(c = 0; c <= m + 1; c++) {
     viz[0][0][c] = viz[0][n + 1][c] = 3;
   }
-  
+
   final_move = 0;
   max_depth = 0;
   cont = 1;
@@ -277,6 +277,6 @@ int main() {
     fillMutare(1, m, mat[1][m], final_move);
   }
   afisareTabla();
-  
+
   return 0;
 }
